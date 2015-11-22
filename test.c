@@ -13,7 +13,7 @@ double last_sell_price ;
 //JP
 int base_money = 2000000;
 double fraction_range = 0;
-double profit_lower = 60
+double profit_lower = 60;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -27,9 +27,6 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
   {
-//--- destroy timer
-   EventKillTimer();
-      
   }
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
@@ -53,8 +50,8 @@ void OnTick() {
 
 
 	RefreshRates();
-	if ((last_buy_price + price_width) <= Ask || Bid <= (last_sell_price - price_width)) {
-		double lot_correction = 0;
+	double lot_correction = 0;
+	if (Ask <= (last_buy_price - price_width) || (last_buy_price + price_width) <= Ask) {
 		if(0 < AccountFreeMarginCheck(Symbol(), OP_BUY, lot) ) {
 			int price_level = Ask * 10;
 			if ((price_level % 10 ) < fraction_range) {
@@ -68,12 +65,17 @@ void OnTick() {
 			}
 		}
 
+		payingClose();
+	}
+
+	if (Bid <= (last_sell_price - price_width) || (last_sell_price + price_width) <= Bid ) {
 		int price_level = Bid * 10;
 		if ((price_level % 10 ) < fraction_range) {
 			lot_correction = 0.01;
 		} else {
 			lot_correction = 0;
 		}
+
 		if(0 < AccountFreeMarginCheck(Symbol(), OP_SELL, lot) ) {
 		last_sell_ticket = OrderSend(Symbol(), OP_SELL, lot + lot_correction, Bid, 3, 0, 0, "Sell", 10, 0, Red);
 			if (OrderSelect(last_sell_ticket, SELECT_BY_TICKET, MODE_TRADES)) {

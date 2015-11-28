@@ -64,6 +64,11 @@ void OnTick() {
 			simpleOrder(OP_SELL);
 		}
 
+		if (isPositionExist(OP_BUY) && Bid <= (upper_sell_price - price_width) ) {
+			simpleOrder(OP_SELL);
+		}
+
+
 		if (Ask <= (lower_buy_price  - price_width)) {
 			simpleOrder(OP_BUY);
 		}
